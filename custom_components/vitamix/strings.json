@@ -1,0 +1,46 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "bluetooth_confirm": {
+        "description": "Set up {name} ({address})?"
+      },
+      "user": {
+        "description": "Pick the Vitamix you'd like to add.",
+        "data": {
+          "address": "Device"
+        }
+      },
+      "manual": {
+        "description": "Enter the Bluetooth MAC address of the Vitamix.",
+        "data": {
+          "address": "MAC address"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This Vitamix is already configured.",
+      "no_devices_found": "No Vitamix devices were discovered."
+    },
+    "error": {
+      "invalid_address": "Not a valid MAC address."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "motor_running": { "name": "Motor running" },
+      "armed": { "name": "Armed" },
+      "container_attached": { "name": "Container attached" }
+    },
+    "sensor": {
+      "container": { "name": "Container" },
+      "container_name": { "name": "Container name" },
+      "container_hardware_id": { "name": "Container hardware id" },
+      "container_max_runtime": { "name": "Container max runtime" },
+      "recipe_slot": { "name": "Recipe slot" },
+      "rated_power": { "name": "Rated power" },
+      "max_rpm": { "name": "Max RPM" },
+      "rated_rpm": { "name": "Rated RPM" }
+    }
+  }
+}
