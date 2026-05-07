@@ -71,6 +71,18 @@
           "description": "u16 seconds; defaults to the run-forever sentinel."
         }
       }
+    },
+    "start_motor": {
+      "name": "Start motor",
+      "description": "Start the motor; defaults to Variable-5.",
+      "fields": {
+        "speed": { "name": "Speed", "description": "1..10." },
+        "duration": { "name": "Duration (seconds)" }
+      }
+    },
+    "stop_motor": {
+      "name": "Stop motor",
+      "description": "Stop the motor (same wire packet as cancel)."
     }
   }
 }

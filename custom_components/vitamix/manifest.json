@@ -1,7 +1,7 @@
 {
   "domain": "vitamix",
   "name": "Vitamix",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "codeowners": ["@teemow"],
   "config_flow": true,
   "dependencies": ["bluetooth_adapters"],
@@ -9,7 +9,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/teemow/hass-vitamix/issues",
   "loggers": ["vitamix_ble", "custom_components.vitamix"],
-  "requirements": ["vitamix-ble @ git+https://github.com/teemow/vitamix-ble@v0.3.0"],
+  "requirements": ["vitamix-ble @ git+https://github.com/teemow/vitamix-ble@v0.4.0"],
   "bluetooth": [
     {
       "local_name": "Vitamix_2.0"

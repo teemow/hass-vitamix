@@ -68,3 +68,46 @@ set_motor_speed:
           max: 65535
           step: 1
           mode: box
+
+start_motor:
+  name: Start motor
+  description: >-
+    Convenience wrapper around set_motor_speed. Defaults to a gentle
+    Variable-5 so a bare invocation can't launch ingredients out of
+    an open container.
+  target:
+    device:
+      integration: vitamix
+  fields:
+    speed:
+      name: Speed
+      description: 1..10 on the variable-speed dial.
+      required: false
+      default: 5
+      example: 5
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+          mode: slider
+    duration:
+      name: Duration (seconds)
+      required: false
+      default: 65535
+      example: 60
+      selector:
+        number:
+          min: 1
+          max: 65535
+          step: 1
+          mode: box
+
+stop_motor:
+  name: Stop motor
+  description: >-
+    Stop the motor. Equivalent to cancel; kept as a separate service
+    so dashboards/automations can express intent unambiguously.
+  target:
+    device:
+      integration: vitamix

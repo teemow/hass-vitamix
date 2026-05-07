@@ -21,6 +21,8 @@ PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
 SERVICE_CANCEL = "cancel"
 SERVICE_LOAD_PROGRAM = "load_program"
 SERVICE_SET_MOTOR_SPEED = "set_motor_speed"
+SERVICE_START_MOTOR = "start_motor"
+SERVICE_STOP_MOTOR = "stop_motor"
 
 ATTR_SLOT = "slot"
 ATTR_SPEED = "speed"
@@ -47,10 +49,24 @@ SCHEMA_SET_MOTOR_SPEED = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
+SCHEMA_START_MOTOR = vol.Schema(
+    {
+        vol.Optional(ATTR_SPEED, default=5): vol.All(
+            int, vol.Range(min=1, max=10)
+        ),
+        vol.Optional(ATTR_DURATION, default=0xFFFF): vol.All(
+            int, vol.Range(min=1, max=0xFFFF)
+        ),
+    },
+    extra=vol.ALLOW_EXTRA,
+)
+
 ALL_SERVICES = (
     SERVICE_CANCEL,
     SERVICE_LOAD_PROGRAM,
     SERVICE_SET_MOTOR_SPEED,
+    SERVICE_START_MOTOR,
+    SERVICE_STOP_MOTOR,
 )
 
 
@@ -131,6 +147,18 @@ def _async_register_services(hass: HomeAssistant) -> None:
                 speed, duration_seconds=duration
             )
 
+    async def _async_start_motor(call: ServiceCall) -> None:
+        speed: int = call.data[ATTR_SPEED]
+        duration: int = call.data[ATTR_DURATION]
+        for coordinator in await _resolve_coordinators(call):
+            await coordinator.async_start_motor(
+                speed, duration_seconds=duration
+            )
+
+    async def _async_stop_motor(call: ServiceCall) -> None:
+        for coordinator in await _resolve_coordinators(call):
+            await coordinator.async_stop_motor()
+
     # We use device targets, not entity targets, so the schemas only
     # validate our own field; HA injects target keys (device_id /
     # entity_id / area_id) into call.data which we tolerate via
@@ -152,4 +180,16 @@ def _async_register_services(hass: HomeAssistant) -> None:
         SERVICE_SET_MOTOR_SPEED,
         _async_set_motor_speed,
         schema=SCHEMA_SET_MOTOR_SPEED,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_START_MOTOR,
+        _async_start_motor,
+        schema=SCHEMA_START_MOTOR,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_STOP_MOTOR,
+        _async_stop_motor,
+        schema=vol.Schema({}, extra=vol.ALLOW_EXTRA),
     )

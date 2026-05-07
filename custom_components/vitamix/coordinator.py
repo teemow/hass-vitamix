@@ -138,3 +138,31 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
             ) from err
         await self.async_request_refresh()
 
+    async def async_start_motor(
+        self, speed: int = 5, duration_seconds: int = 0xFFFF
+    ) -> None:
+        """Start the motor at ``speed`` (defaults to Variable-5)."""
+        client = await self._connected_client()
+        try:
+            async with client as vmx:
+                await vmx.start_motor(
+                    speed, duration_seconds=duration_seconds
+                )
+        except (VitamixError, BleakError, asyncio.TimeoutError) as err:
+            raise UpdateFailed(
+                f"vitamix start_motor failed: {err}"
+            ) from err
+        await self.async_request_refresh()
+
+    async def async_stop_motor(self) -> None:
+        """Stop the motor (same wire packet as cancel_program)."""
+        client = await self._connected_client()
+        try:
+            async with client as vmx:
+                await vmx.stop_motor()
+        except (VitamixError, BleakError, asyncio.TimeoutError) as err:
+            raise UpdateFailed(
+                f"vitamix stop_motor failed: {err}"
+            ) from err
+        await self.async_request_refresh()
+
