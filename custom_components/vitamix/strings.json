@@ -42,5 +42,21 @@
       "max_rpm": { "name": "Max RPM" },
       "rated_rpm": { "name": "Rated RPM" }
     }
+  },
+  "services": {
+    "cancel": {
+      "name": "Cancel program",
+      "description": "Send the official cancel-program packet."
+    },
+    "load_program": {
+      "name": "Load saved program",
+      "description": "Arm one of the blender's saved program slots.",
+      "fields": {
+        "slot": {
+          "name": "Program slot",
+          "description": "1-indexed saved-program slot."
+        }
+      }
+    }
   }
 }

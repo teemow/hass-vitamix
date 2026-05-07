@@ -1,0 +1,31 @@
+cancel:
+  name: Cancel program
+  description: >-
+    Send the official "cancel current program" packet to a Vitamix
+    blender. Idempotent if the device is already idle.
+  target:
+    device:
+      integration: vitamix
+
+load_program:
+  name: Load saved program
+  description: >-
+    Arm one of the blender's built-in saved program slots
+    (e.g. Smoothie / Frozen Dessert / Spreads). Whether the motor also
+    spins immediately depends on whether the dial is in an armed
+    position; on an idle device the slot is just primed.
+  target:
+    device:
+      integration: vitamix
+  fields:
+    slot:
+      name: Program slot
+      description: 1-indexed saved-program slot (1 = first preset).
+      required: true
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 16
+          step: 1
+          mode: box

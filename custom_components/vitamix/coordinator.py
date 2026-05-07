@@ -70,3 +70,48 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
             self.update_interval = new_td
 
         return state
+
+    async def _connected_client(self) -> VitamixClient:
+        """Resolve a BLEDevice and return a *connected* :class:`VitamixClient`.
+
+        Opens a fresh, short-lived connection. Caller is responsible for
+        closing the client (use ``async with`` where possible).
+        """
+        ble_device = bluetooth.async_ble_device_from_address(
+            self.hass, self.address, connectable=True
+        )
+        if ble_device is None:
+            raise UpdateFailed(
+                f"no Bluetooth scanner has seen {self.address} recently"
+            )
+        return VitamixClient(ble_device)
+
+    async def async_cancel_program(self) -> None:
+        """Send the cancel-program packet to the blender.
+
+        Equivalent to writing 0 to the recipe register. Triggers a
+        refresh on success so HA picks up the new state quickly.
+        """
+        client = await self._connected_client()
+        try:
+            async with client as vmx:
+                await vmx.cancel_program()
+        except (VitamixError, BleakError, asyncio.TimeoutError) as err:
+            raise UpdateFailed(f"vitamix cancel failed: {err}") from err
+        await self.async_request_refresh()
+
+    async def async_load_program(self, slot: int) -> None:
+        """Arm a saved program slot (Smoothie / Frozen Dessert / Spreads).
+
+        Mirrors the final write of the official app's setBlenderProgram
+        for built-in saved programs. Whether the motor also spins
+        immediately depends on the panel "armed" flag (the dial
+        position).
+        """
+        client = await self._connected_client()
+        try:
+            async with client as vmx:
+                await vmx.load_program(slot)
+        except (VitamixError, BleakError, asyncio.TimeoutError) as err:
+            raise UpdateFailed(f"vitamix load_program failed: {err}") from err
+        await self.async_request_refresh()
