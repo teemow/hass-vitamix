@@ -111,3 +111,41 @@ stop_motor:
   target:
     device:
       integration: vitamix
+
+play_melody:
+  name: Play melody
+  description: >-
+    Play a sequence of (speed, duration) "notes" by re-staging a
+    1-step custom program for each note and sleeping for its dwell
+    time. Holds a single BLE connection open for the whole tune.
+  target:
+    device:
+      integration: vitamix
+  fields:
+    notes:
+      name: Notes
+      description: >-
+        List of {speed, duration} pairs. Speed is 0..10 (0 = silence /
+        stop), duration is in seconds (fractions allowed).
+      required: true
+      example: |
+        - speed: 4
+          duration: 0.3
+        - speed: 8
+          duration: 0.6
+      selector:
+        object:
+    gap:
+      name: Gap between notes (seconds)
+      description: >-
+        Optional silence inserted between notes (motor stops). Set to
+        0 for back-to-back notes.
+      required: false
+      default: 0.0
+      example: 0.05
+      selector:
+        number:
+          min: 0
+          max: 5
+          step: 0.05
+          mode: box

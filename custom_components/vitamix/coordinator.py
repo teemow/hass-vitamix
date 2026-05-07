@@ -166,3 +166,24 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
             ) from err
         await self.async_request_refresh()
 
+    async def async_play_melody(
+        self,
+        notes: list[tuple[int, float]],
+        gap_seconds: float = 0.0,
+    ) -> None:
+        """Play a sequence of (speed, duration_seconds) "notes".
+
+        We hold a single BLE connection open for the whole melody so
+        re-staging the program for each note is fast (no reconnect
+        between notes). The motor stops at the end.
+        """
+        client = await self._connected_client()
+        try:
+            async with client as vmx:
+                await vmx.play_melody(notes, gap_seconds=gap_seconds)
+        except (VitamixError, BleakError, asyncio.TimeoutError) as err:
+            raise UpdateFailed(
+                f"vitamix play_melody failed: {err}"
+            ) from err
+        await self.async_request_refresh()
+

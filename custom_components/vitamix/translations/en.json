@@ -83,6 +83,20 @@
     "stop_motor": {
       "name": "Stop motor",
       "description": "Stop the motor (same wire packet as cancel)."
+    },
+    "play_melody": {
+      "name": "Play melody",
+      "description": "Sequence (speed, duration) notes for blender music.",
+      "fields": {
+        "notes": {
+          "name": "Notes",
+          "description": "List of {speed, duration} pairs."
+        },
+        "gap": {
+          "name": "Gap between notes",
+          "description": "Optional silence between notes, in seconds."
+        }
+      }
     }
   }
 }

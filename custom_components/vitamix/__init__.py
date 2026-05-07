@@ -23,10 +23,13 @@ SERVICE_LOAD_PROGRAM = "load_program"
 SERVICE_SET_MOTOR_SPEED = "set_motor_speed"
 SERVICE_START_MOTOR = "start_motor"
 SERVICE_STOP_MOTOR = "stop_motor"
+SERVICE_PLAY_MELODY = "play_melody"
 
 ATTR_SLOT = "slot"
 ATTR_SPEED = "speed"
 ATTR_DURATION = "duration"
+ATTR_NOTES = "notes"
+ATTR_GAP = "gap"
 
 # Saved-program slots are 1-indexed. Allow up to 16 to accommodate models
 # with extended program tables; the firmware will reject out-of-range
@@ -61,12 +64,35 @@ SCHEMA_START_MOTOR = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
+# Each note is {speed: 0..10, duration: float seconds}.
+SCHEMA_NOTE = vol.Schema(
+    {
+        vol.Required(ATTR_SPEED): vol.All(int, vol.Range(min=0, max=10)),
+        vol.Required(ATTR_DURATION): vol.All(
+            vol.Coerce(float), vol.Range(min=0.05, max=60.0)
+        ),
+    }
+)
+
+SCHEMA_PLAY_MELODY = vol.Schema(
+    {
+        vol.Required(ATTR_NOTES): vol.All(
+            [SCHEMA_NOTE], vol.Length(min=1, max=64)
+        ),
+        vol.Optional(ATTR_GAP, default=0.0): vol.All(
+            vol.Coerce(float), vol.Range(min=0.0, max=5.0)
+        ),
+    },
+    extra=vol.ALLOW_EXTRA,
+)
+
 ALL_SERVICES = (
     SERVICE_CANCEL,
     SERVICE_LOAD_PROGRAM,
     SERVICE_SET_MOTOR_SPEED,
     SERVICE_START_MOTOR,
     SERVICE_STOP_MOTOR,
+    SERVICE_PLAY_MELODY,
 )
 
 
@@ -159,6 +185,15 @@ def _async_register_services(hass: HomeAssistant) -> None:
         for coordinator in await _resolve_coordinators(call):
             await coordinator.async_stop_motor()
 
+    async def _async_play_melody(call: ServiceCall) -> None:
+        notes_raw = call.data[ATTR_NOTES]
+        gap: float = call.data[ATTR_GAP]
+        notes: list[tuple[int, float]] = [
+            (n[ATTR_SPEED], n[ATTR_DURATION]) for n in notes_raw
+        ]
+        for coordinator in await _resolve_coordinators(call):
+            await coordinator.async_play_melody(notes, gap_seconds=gap)
+
     # We use device targets, not entity targets, so the schemas only
     # validate our own field; HA injects target keys (device_id /
     # entity_id / area_id) into call.data which we tolerate via
@@ -192,4 +227,10 @@ def _async_register_services(hass: HomeAssistant) -> None:
         SERVICE_STOP_MOTOR,
         _async_stop_motor,
         schema=vol.Schema({}, extra=vol.ALLOW_EXTRA),
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_PLAY_MELODY,
+        _async_play_melody,
+        schema=SCHEMA_PLAY_MELODY,
     )
