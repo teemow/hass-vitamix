@@ -57,6 +57,20 @@
           "description": "1-indexed saved-program slot."
         }
       }
+    },
+    "set_motor_speed": {
+      "name": "Set motor speed",
+      "description": "Run the motor at a fixed Variable-speed (0..10).",
+      "fields": {
+        "speed": {
+          "name": "Speed",
+          "description": "0..10 on the variable-speed dial. 0 stops the motor."
+        },
+        "duration": {
+          "name": "Duration (seconds)",
+          "description": "u16 seconds; defaults to the run-forever sentinel."
+        }
+      }
     }
   }
 }

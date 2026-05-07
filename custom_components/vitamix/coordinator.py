@@ -115,3 +115,26 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
         except (VitamixError, BleakError, asyncio.TimeoutError) as err:
             raise UpdateFailed(f"vitamix load_program failed: {err}") from err
         await self.async_request_refresh()
+
+    async def async_set_motor_speed(
+        self, speed: int, duration_seconds: int = 0xFFFF
+    ) -> None:
+        """Set the motor to a fixed Variable-speed (0..10).
+
+        Stages a 1-step custom program in the panel-2 scratch buffer
+        (registers 0x0201..) and fires it via REG_PROGRAM_FLAG. Calling
+        this while the motor is already running re-stages the buffer
+        and effectively changes speed live.
+        """
+        client = await self._connected_client()
+        try:
+            async with client as vmx:
+                await vmx.set_motor_speed(
+                    speed, duration_seconds=duration_seconds
+                )
+        except (VitamixError, BleakError, asyncio.TimeoutError) as err:
+            raise UpdateFailed(
+                f"vitamix set_motor_speed failed: {err}"
+            ) from err
+        await self.async_request_refresh()
+

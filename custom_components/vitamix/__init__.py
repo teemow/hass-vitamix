@@ -20,7 +20,11 @@ PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
 
 SERVICE_CANCEL = "cancel"
 SERVICE_LOAD_PROGRAM = "load_program"
+SERVICE_SET_MOTOR_SPEED = "set_motor_speed"
+
 ATTR_SLOT = "slot"
+ATTR_SPEED = "speed"
+ATTR_DURATION = "duration"
 
 # Saved-program slots are 1-indexed. Allow up to 16 to accommodate models
 # with extended program tables; the firmware will reject out-of-range
@@ -30,6 +34,23 @@ SCHEMA_LOAD_PROGRAM = vol.Schema(
         vol.Required(ATTR_SLOT): vol.All(int, vol.Range(min=1, max=16)),
     },
     extra=vol.ALLOW_EXTRA,
+)
+
+# Speeds 0..10 (Vitamix variable-speed dial); duration in u16 seconds.
+SCHEMA_SET_MOTOR_SPEED = vol.Schema(
+    {
+        vol.Required(ATTR_SPEED): vol.All(int, vol.Range(min=0, max=10)),
+        vol.Optional(ATTR_DURATION, default=0xFFFF): vol.All(
+            int, vol.Range(min=1, max=0xFFFF)
+        ),
+    },
+    extra=vol.ALLOW_EXTRA,
+)
+
+ALL_SERVICES = (
+    SERVICE_CANCEL,
+    SERVICE_LOAD_PROGRAM,
+    SERVICE_SET_MOTOR_SPEED,
 )
 
 
@@ -53,7 +74,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id, None)
     if not hass.data.get(DOMAIN):
         # Last entry gone — drop services so a future reinstall registers fresh.
-        for svc in (SERVICE_CANCEL, SERVICE_LOAD_PROGRAM):
+        for svc in ALL_SERVICES:
             if hass.services.has_service(DOMAIN, svc):
                 hass.services.async_remove(DOMAIN, svc)
     return unloaded
@@ -102,6 +123,14 @@ def _async_register_services(hass: HomeAssistant) -> None:
         for coordinator in await _resolve_coordinators(call):
             await coordinator.async_load_program(slot)
 
+    async def _async_set_motor_speed(call: ServiceCall) -> None:
+        speed: int = call.data[ATTR_SPEED]
+        duration: int = call.data[ATTR_DURATION]
+        for coordinator in await _resolve_coordinators(call):
+            await coordinator.async_set_motor_speed(
+                speed, duration_seconds=duration
+            )
+
     # We use device targets, not entity targets, so the schemas only
     # validate our own field; HA injects target keys (device_id /
     # entity_id / area_id) into call.data which we tolerate via
@@ -117,4 +146,10 @@ def _async_register_services(hass: HomeAssistant) -> None:
         SERVICE_LOAD_PROGRAM,
         _async_load_program,
         schema=SCHEMA_LOAD_PROGRAM,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_MOTOR_SPEED,
+        _async_set_motor_speed,
+        schema=SCHEMA_SET_MOTOR_SPEED,
     )

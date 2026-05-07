@@ -29,3 +29,42 @@ load_program:
           max: 16
           step: 1
           mode: box
+
+set_motor_speed:
+  name: Set motor speed
+  description: >-
+    Run the motor at a fixed Variable-speed (0..10). Stages a 1-step
+    custom program in the panel scratch buffer and fires it. Calling
+    again while the motor is running re-stages the buffer for live
+    speed changes.
+  target:
+    device:
+      integration: vitamix
+  fields:
+    speed:
+      name: Speed
+      description: >-
+        0..10 on the variable-speed dial. 0 stops the motor (same as
+        the cancel service); 10 is full speed.
+      required: true
+      example: 5
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 1
+          mode: slider
+    duration:
+      name: Duration (seconds)
+      description: >-
+        How long the motor should run before the firmware times it
+        out. Defaults to 65535 (~18h, used as "run forever" sentinel).
+      required: false
+      default: 65535
+      example: 60
+      selector:
+        number:
+          min: 1
+          max: 65535
+          step: 1
+          mode: box
