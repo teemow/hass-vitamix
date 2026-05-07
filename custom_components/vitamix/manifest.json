@@ -9,7 +9,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/teemow/hass-vitamix/issues",
   "loggers": ["vitamix_ble", "custom_components.vitamix"],
-  "requirements": ["vitamix-ble>=0.1.0"],
+  "requirements": ["vitamix-ble @ git+https://github.com/teemow/vitamix-ble@v0.1.0"],
   "bluetooth": [
     {
       "local_name": "Vitamix_2.0"
