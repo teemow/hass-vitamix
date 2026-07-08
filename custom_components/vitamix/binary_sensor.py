@@ -55,8 +55,7 @@ async def async_setup_entry(
 ) -> None:
     coordinator: VitamixCoordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        VitamixBinarySensor(coordinator, description)
-        for description in BINARY_SENSORS
+        VitamixBinarySensor(coordinator, description) for description in BINARY_SENSORS
     )
 
 

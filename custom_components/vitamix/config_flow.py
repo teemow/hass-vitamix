@@ -124,4 +124,6 @@ def _looks_like_mac(value: str) -> bool:
     parts = value.split(":")
     if len(parts) != 6:
         return False
-    return all(len(p) == 2 and all(c in "0123456789ABCDEFabcdef" for c in p) for p in parts)
+    return all(
+        len(p) == 2 and all(c in "0123456789ABCDEFabcdef" for c in p) for p in parts
+    )
