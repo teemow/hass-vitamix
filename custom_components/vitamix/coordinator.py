@@ -50,9 +50,7 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
             self.hass, self.address, connectable=True
         )
         if ble_device is None:
-            raise UpdateFailed(
-                f"no Bluetooth scanner has seen {self.address} recently"
-            )
+            raise UpdateFailed(f"no Bluetooth scanner has seen {self.address} recently")
         client = VitamixClient(ble_device)
         try:
             async with client as vmx:
@@ -81,9 +79,7 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
             self.hass, self.address, connectable=True
         )
         if ble_device is None:
-            raise UpdateFailed(
-                f"no Bluetooth scanner has seen {self.address} recently"
-            )
+            raise UpdateFailed(f"no Bluetooth scanner has seen {self.address} recently")
         return VitamixClient(ble_device)
 
     async def async_cancel_program(self) -> None:
@@ -129,13 +125,9 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
         client = await self._connected_client()
         try:
             async with client as vmx:
-                await vmx.set_motor_speed(
-                    speed, duration_seconds=duration_seconds
-                )
+                await vmx.set_motor_speed(speed, duration_seconds=duration_seconds)
         except (VitamixError, BleakError, asyncio.TimeoutError) as err:
-            raise UpdateFailed(
-                f"vitamix set_motor_speed failed: {err}"
-            ) from err
+            raise UpdateFailed(f"vitamix set_motor_speed failed: {err}") from err
         await self.async_request_refresh()
 
     async def async_start_motor(
@@ -145,13 +137,9 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
         client = await self._connected_client()
         try:
             async with client as vmx:
-                await vmx.start_motor(
-                    speed, duration_seconds=duration_seconds
-                )
+                await vmx.start_motor(speed, duration_seconds=duration_seconds)
         except (VitamixError, BleakError, asyncio.TimeoutError) as err:
-            raise UpdateFailed(
-                f"vitamix start_motor failed: {err}"
-            ) from err
+            raise UpdateFailed(f"vitamix start_motor failed: {err}") from err
         await self.async_request_refresh()
 
     async def async_stop_motor(self) -> None:
@@ -161,9 +149,7 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
             async with client as vmx:
                 await vmx.stop_motor()
         except (VitamixError, BleakError, asyncio.TimeoutError) as err:
-            raise UpdateFailed(
-                f"vitamix stop_motor failed: {err}"
-            ) from err
+            raise UpdateFailed(f"vitamix stop_motor failed: {err}") from err
         await self.async_request_refresh()
 
     async def async_play_melody(
@@ -182,8 +168,5 @@ class VitamixCoordinator(DataUpdateCoordinator[VitamixState]):
             async with client as vmx:
                 await vmx.play_melody(notes, gap_seconds=gap_seconds)
         except (VitamixError, BleakError, asyncio.TimeoutError) as err:
-            raise UpdateFailed(
-                f"vitamix play_melody failed: {err}"
-            ) from err
+            raise UpdateFailed(f"vitamix play_melody failed: {err}") from err
         await self.async_request_refresh()
-

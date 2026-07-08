@@ -54,9 +54,7 @@ SCHEMA_SET_MOTOR_SPEED = vol.Schema(
 
 SCHEMA_START_MOTOR = vol.Schema(
     {
-        vol.Optional(ATTR_SPEED, default=5): vol.All(
-            int, vol.Range(min=1, max=10)
-        ),
+        vol.Optional(ATTR_SPEED, default=5): vol.All(int, vol.Range(min=1, max=10)),
         vol.Optional(ATTR_DURATION, default=0xFFFF): vol.All(
             int, vol.Range(min=1, max=0xFFFF)
         ),
@@ -76,9 +74,7 @@ SCHEMA_NOTE = vol.Schema(
 
 SCHEMA_PLAY_MELODY = vol.Schema(
     {
-        vol.Required(ATTR_NOTES): vol.All(
-            [SCHEMA_NOTE], vol.Length(min=1, max=64)
-        ),
+        vol.Required(ATTR_NOTES): vol.All([SCHEMA_NOTE], vol.Length(min=1, max=64)),
         vol.Optional(ATTR_GAP, default=0.0): vol.All(
             vol.Coerce(float), vol.Range(min=0.0, max=5.0)
         ),
@@ -151,9 +147,7 @@ def _async_register_services(hass: HomeAssistant) -> None:
                     coordinators.append(coordinator)
 
         if not coordinators:
-            raise HomeAssistantError(
-                f"no Vitamix device matched targets {device_ids}"
-            )
+            raise HomeAssistantError(f"no Vitamix device matched targets {device_ids}")
         return coordinators
 
     async def _async_cancel(call: ServiceCall) -> None:
@@ -169,17 +163,13 @@ def _async_register_services(hass: HomeAssistant) -> None:
         speed: int = call.data[ATTR_SPEED]
         duration: int = call.data[ATTR_DURATION]
         for coordinator in await _resolve_coordinators(call):
-            await coordinator.async_set_motor_speed(
-                speed, duration_seconds=duration
-            )
+            await coordinator.async_set_motor_speed(speed, duration_seconds=duration)
 
     async def _async_start_motor(call: ServiceCall) -> None:
         speed: int = call.data[ATTR_SPEED]
         duration: int = call.data[ATTR_DURATION]
         for coordinator in await _resolve_coordinators(call):
-            await coordinator.async_start_motor(
-                speed, duration_seconds=duration
-            )
+            await coordinator.async_start_motor(speed, duration_seconds=duration)
 
     async def _async_stop_motor(call: ServiceCall) -> None:
         for coordinator in await _resolve_coordinators(call):
